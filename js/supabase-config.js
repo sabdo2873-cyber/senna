@@ -5,9 +5,8 @@
  */
 
 // Public Supabase Project Credentials
-// (Can be overridden via window.SUPABASE_URL and window.SUPABASE_ANON_KEY or localStorage)
-const DEFAULT_SUPABASE_URL = "https://xyzcompanyplaceholder.supabase.co";
-const DEFAULT_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder";
+const DEFAULT_SUPABASE_URL = "https://zfyljfvqnbiwehlxdncz.supabase.co";
+const DEFAULT_SUPABASE_ANON_KEY = "sb_publishable_MPXn491KeLd4MiDHRFY_7A_tGuWRAhd";
 
 export const SUPABASE_URL = localStorage.getItem('custom_supabase_url') || window.SUPABASE_URL || DEFAULT_SUPABASE_URL;
 export const SUPABASE_ANON_KEY = localStorage.getItem('custom_supabase_key') || window.SUPABASE_ANON_KEY || DEFAULT_SUPABASE_ANON_KEY;

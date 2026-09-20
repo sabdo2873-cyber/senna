@@ -714,9 +714,9 @@
 
     let cases = getLocalOrSeedCases();
 
-    // Attempt Supabase fetch if SDK and config are present
-    const customUrl = localStorage.getItem('custom_supabase_url') || window.SUPABASE_URL;
-    const customKey = localStorage.getItem('custom_supabase_key') || window.SUPABASE_ANON_KEY;
+    // Attempt Supabase fetch if SDK is loaded
+    const customUrl = localStorage.getItem('custom_supabase_url') || window.SUPABASE_URL || "https://zfyljfvqnbiwehlxdncz.supabase.co";
+    const customKey = localStorage.getItem('custom_supabase_key') || window.SUPABASE_ANON_KEY || "sb_publishable_MPXn491KeLd4MiDHRFY_7A_tGuWRAhd";
     if (window.supabase && typeof window.supabase.createClient === 'function' && customUrl && customKey) {
       try {
         const client = window.supabase.createClient(customUrl, customKey);
