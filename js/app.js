@@ -589,16 +589,297 @@
   }
 
   // --------------------------------------------------------------------------
-  // INSTAGRAM CLINICAL FEED INTERACTIONS
+  // DYNAMIC CLINICAL CASE FEED & MULTI-PHOTO LIGHTBOX GALLERY
   // --------------------------------------------------------------------------
-  function initInstagramFeed() {
-    const likeButtons = document.querySelectorAll('.like-btn');
-    likeButtons.forEach(btn => {
+  let currentGalleryCase = null;
+  let currentGalleryIndex = 0;
+
+  function parseCasePhotos(rawImages, fallbackSingle = '') {
+    if (Array.isArray(rawImages)) {
+      return rawImages.filter(img => typeof img === 'string' && img.trim().length > 0);
+    }
+    if (typeof rawImages === 'string') {
+      const trimmed = rawImages.trim();
+      if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+        try {
+          const parsed = JSON.parse(trimmed);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed.filter(i => typeof i === 'string' && i.trim().length > 0);
+          }
+        } catch (e) {}
+      }
+      if (trimmed.includes(',')) {
+        const split = trimmed.split(',').map(s => s.trim()).filter(Boolean);
+        if (split.length > 0) return split;
+      }
+      if (trimmed.length > 0) return [trimmed];
+    }
+    if (fallbackSingle && typeof fallbackSingle === 'string' && fallbackSingle.trim().length > 0) {
+      return [fallbackSingle.trim()];
+    }
+    return ['assets/images/doctor_case_fracture.jpg'];
+  }
+
+  function getLocalOrSeedCases() {
+    try {
+      const localData = localStorage.getItem('dr_saleh_clinical_cases_v1');
+      if (localData) {
+        const parsed = JSON.parse(localData);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+
+    // Initial default seed cases
+    return [
+      {
+        id: "case-seed-1",
+        title: "Traumatic Incisor Fracture Reconstruction",
+        category: "Restorative",
+        tooth_location: "Maxillary Centrals (#8, #9)",
+        diagnosis: "Complicated Enamel & Dentin Fracture with Incisal Third Loss",
+        treatment_date: "2026-03-12",
+        clinical_narrative: "Patient presented following acute sports impact trauma with severe oblique crown fractures on maxillary central incisors (#8 & #9). Performed polychromatic nano-hybrid composite stratification with multi-layered anatomical mamelons, star-bevel margins, and high-gloss diamond polish in a single 75-minute visit.",
+        highlights: "Single-visit biomimetic restoration; Zero pulp compromise; Natural light transmission translucency",
+        tags: ["TraumaDentistry", "BiomimeticDentistry", "IncisalFracture", "Restorative", "DrSalehElrayes"],
+        images: [
+          "assets/images/doctor_case_fracture.jpg",
+          "assets/images/case_fracture_before.jpg",
+          "assets/images/case_fracture_after.jpg"
+        ]
+      },
+      {
+        id: "case-seed-2",
+        title: "Laser Gingival Recontouring & Crown Lengthening",
+        category: "Aesthetics",
+        tooth_location: "Anterior Sextant (#6 - #11)",
+        diagnosis: "Excessive Gingival Display ('Gummy Smile') & Asymmetrical Zeniths",
+        treatment_date: "2026-03-05",
+        clinical_narrative: "Treating an excessive gingival display ('gummy smile') with asymmetrical scalloped gum zeniths. High-precision all-tissue Waterlase laser gingivectomy revealing natural anatomical tooth dimensions. Instant coagulation achieved with zero scalpels, zero sutures, and rapid 48-hour recovery.",
+        highlights: "High-precision all-tissue laser; Zero scalpels or sutures; 48-hour tissue recovery",
+        tags: ["LaserDentistry", "GummySmile", "Gingivectomy", "Waterlase", "AestheticCrownLengthening"],
+        images: [
+          "assets/images/case_gingivectomy_lengthening.jpg"
+        ]
+      },
+      {
+        id: "case-seed-3",
+        title: "Congenital Peg Lateral & Diastema Veneer Closure",
+        category: "Restorative",
+        tooth_location: "Maxillary Laterals (#7, #10)",
+        diagnosis: "Bilateral Microdontia / Peg Laterals with Prominent Anterior Spacing",
+        treatment_date: "2026-02-28",
+        clinical_narrative: "Congenitally undersized lateral incisor causing prominent gaps on both sides. Fabricated non-prep micro-thin feldspathic porcelain veneer preserving 95%+ of natural enamel. Custom cervical emergence profile sculpted to generate natural interdental pink papilla fill.",
+        highlights: "95%+ natural enamel preserved; Custom cervical emergence profile; Ideal papilla fill",
+        tags: ["PegLateral", "DiastemaClosure", "PorcelainVeneers", "Microdontia", "CosmeticDentistry"],
+        images: [
+          "assets/images/doctor_case_peg_lateral.jpg",
+          "assets/images/case_peg_before.jpg",
+          "assets/images/case_peg_after.jpg"
+        ]
+      },
+      {
+        id: "case-seed-4",
+        title: "Comprehensive Endodontic & Anterior Reconstruction",
+        category: "Endodontics",
+        tooth_location: "Maxillary Anterior Quad (#6 - #9)",
+        diagnosis: "Chronic Apical Periodontitis & Severe Aesthetic Compromise",
+        treatment_date: "2026-02-14",
+        clinical_narrative: "High-complexity anterior restoration combining endodontic therapy, digital analysis, and ceramic rehabilitation. Digital Smile Design facial grid analysis, precision rubber dam isolation, microscopic endodontic sealing, and definitive aesthetic ceramic crowns creating full smile symmetry.",
+        highlights: "Digital Smile Design facial grid; Rubber dam isolation; Microscopic endodontic sealing",
+        tags: ["Endodontics", "DigitalSmileDesign", "RubberDam", "Multidisciplinary", "SmileRestoration"],
+        images: [
+          "assets/images/case_multistep_restoration.jpg"
+        ]
+      },
+      {
+        id: "case-seed-5",
+        title: "Posterior Biomimetic Composite & Cusp Sculpting",
+        category: "Restorative",
+        tooth_location: "Mandibular First Molar (#19)",
+        diagnosis: "Deep Dentin Caries with Undermined Cuspal Architecture",
+        treatment_date: "2026-01-20",
+        clinical_narrative: "Deep dentin caries removal and anatomical cusp sculpting under strict rubber dam isolation (clamp #26). Atraumatic excavation, Immediate Dentin Sealing (IDS), and biomimetic composite layering replicating natural fissure anatomy, contact points, and biological biting biomechanics.",
+        highlights: "Immediate Dentin Sealing (IDS); Rubber dam isolation; Biomimetic cusp sculpting",
+        tags: ["BiomimeticDentistry", "RubberDam", "PosteriorComposite", "CariesRemoval", "ToothConservation"],
+        images: [
+          "assets/images/case_posterior_biomimetic.jpg"
+        ]
+      }
+    ];
+  }
+
+  async function renderDynamicCasesFeed() {
+    const container = document.getElementById('cases-feed-grid');
+    if (!container) return;
+
+    let cases = getLocalOrSeedCases();
+
+    // Attempt Supabase fetch if SDK and config are present
+    const customUrl = localStorage.getItem('custom_supabase_url') || window.SUPABASE_URL;
+    const customKey = localStorage.getItem('custom_supabase_key') || window.SUPABASE_ANON_KEY;
+    if (window.supabase && typeof window.supabase.createClient === 'function' && customUrl && customKey) {
+      try {
+        const client = window.supabase.createClient(customUrl, customKey);
+        const { data, error } = await client
+          .from('clinical_cases')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!error && Array.isArray(data) && data.length > 0) {
+          cases = data;
+          try {
+            localStorage.setItem('dr_saleh_clinical_cases_v1', JSON.stringify(data));
+          } catch (e) {}
+        }
+      } catch (err) {
+        console.warn("Supabase fetch fallback to local store:", err);
+      }
+    }
+
+    container.innerHTML = '';
+
+    cases.forEach((item, index) => {
+      const photos = parseCasePhotos(item.images || item.image || item.image_url, item.cover_image);
+      const coverPhoto = photos[0] || 'assets/images/doctor_case_fracture.jpg';
+      const count = photos.length;
+      const tagsList = Array.isArray(item.tags) 
+        ? item.tags 
+        : (typeof item.tags === 'string' ? item.tags.split(',').map(t => t.trim()).filter(Boolean) : []);
+
+      const article = document.createElement('article');
+      article.className = 'bg-white rounded-3xl border border-[#B1BEFB]/60 shadow-lg hover:shadow-xl transition-all overflow-hidden flex flex-col justify-between';
+
+      article.innerHTML = `
+        <div>
+          <!-- Post Header -->
+          <div class="p-4 flex items-center justify-between border-b border-slate-100">
+            <div class="flex items-center gap-3">
+              <div class="p-[2px] rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600">
+                <img src="assets/images/doctor_raw.jpg" alt="Dr. Saleh Elrayes" class="w-9 h-9 rounded-full object-cover border-2 border-white">
+              </div>
+              <div>
+                <div class="flex items-center gap-1">
+                  <span class="text-xs font-extrabold text-[#00000F]">dr.salehelrayes</span>
+                  <svg class="w-3.5 h-3.5 text-[#2B6CF5] fill-current" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                </div>
+                <span class="text-[10px] text-slate-500 font-medium">Manhattan, NY • ${item.category || 'Restorative'}</span>
+              </div>
+            </div>
+            <button class="text-slate-400 hover:text-[#00000F] font-bold text-lg px-1 cursor-pointer open-gallery-btn" data-case-index="${index}" aria-label="Open clinical photo gallery">
+              •••
+            </button>
+          </div>
+
+          <!-- Post Clinical Photo with Multi-Photo Badge and Lightbox Trigger -->
+          <div class="relative bg-slate-950 cursor-pointer group overflow-hidden open-gallery-btn" data-case-index="${index}">
+            <img src="${coverPhoto}" alt="${item.title}" class="w-full h-auto object-cover max-h-[360px] group-hover:scale-102 transition-transform duration-300">
+            
+            <!-- Category / Treatment Pill -->
+            <span class="absolute top-3 left-3 bg-black/65 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/20 shadow">
+              ${item.tooth_location || 'CLINICAL CASE'}
+            </span>
+
+            <!-- Multi-Photo Count Badge (e.g. 3 Photos) -->
+            ${count > 1 ? `
+              <span class="absolute top-3 right-3 bg-black/65 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/20 shadow flex items-center gap-1.5">
+                <svg class="w-3 h-3 text-[#B1BEFB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span>${count} Photos</span>
+              </span>
+            ` : ''}
+
+            <!-- Hover View Gallery Cue -->
+            <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+              <span class="px-4 py-2 rounded-full bg-white/90 text-[#00000F] font-bold text-xs shadow-lg backdrop-blur-md flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-[#2B6CF5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <span>View Full Gallery</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Post Action Icons -->
+          <div class="p-4 pb-2">
+            <div class="flex items-center justify-between mb-2.5">
+              <div class="flex items-center gap-4 text-[#00000F]">
+                <button class="like-btn hover:text-rose-500 transition-colors" aria-label="Like post">
+                  <svg class="w-6 h-6 stroke-current fill-none stroke-[1.8]" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                </button>
+                <button class="open-gallery-btn hover:text-[#2B6CF5] transition-colors" data-case-index="${index}" aria-label="View photo album">
+                  <svg class="w-6 h-6 stroke-current fill-none stroke-[1.8]" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                </button>
+                <button class="hover:text-[#2B6CF5] transition-colors" aria-label="Share post" onclick="navigator.clipboard && navigator.clipboard.writeText(window.location.href); alert('Link copied to clipboard!');">
+                  <svg class="w-6 h-6 stroke-current fill-none stroke-[1.8]" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                </button>
+              </div>
+              <button class="hover:text-[#2B6CF5] transition-colors" aria-label="Save post">
+                <svg class="w-6 h-6 stroke-current fill-none stroke-[1.8]" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+              </button>
+            </div>
+
+            <div class="text-xs font-bold text-[#00000F] mb-2">
+              Liked by <span class="font-extrabold text-[#2B6CF5]">1,${(420 + index * 115) % 900 + 100} clinicians and patients</span>
+            </div>
+          </div>
+
+          <!-- Post Bio / Caption (Always Visible Directly Without Clicking) -->
+          <div class="px-4 pb-4 text-xs text-[#4A4A50] space-y-2 leading-relaxed">
+            <p>
+              <strong class="font-extrabold text-[#00000F] mr-1">dr.salehelrayes</strong>
+              <strong>${item.title}:</strong> ${item.clinical_narrative || item.diagnosis || ''}
+            </p>
+            ${item.highlights ? `
+              <p class="bg-[#DCE9FF]/40 p-2.5 rounded-xl border border-[#B1BEFB]/40 text-[11px] text-[#00000F]">
+                🔬 <strong>Clinical Protocol:</strong> ${item.highlights}
+              </p>
+            ` : ''}
+            ${tagsList.length > 0 ? `
+              <div class="text-[#2B6CF5] font-semibold text-[11px] space-x-1 pt-1">
+                ${tagsList.map(t => `<span>#${t.replace(/^#/, '')}</span>`).join(' ')}
+              </div>
+            ` : ''}
+            <span class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold pt-1">
+              ${item.treatment_date || 'RECENT CASE'}
+            </span>
+          </div>
+        </div>
+      `;
+
+      container.appendChild(article);
+    });
+
+    // Append Consultation Feature Card
+    const ctaCard = document.createElement('article');
+    ctaCard.className = 'bg-gradient-to-br from-[#2B6CF5] to-[#1f57d6] rounded-3xl p-8 text-white shadow-xl flex flex-col justify-between relative overflow-hidden';
+    ctaCard.innerHTML = `
+      <div class="absolute -bottom-10 -right-10 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider bg-white/20 px-3 py-1 rounded-full inline-block mb-4">
+          Private Care
+        </span>
+        <h3 class="text-2xl font-black mb-3 leading-snug">Have a similar dental concern?</h3>
+        <p class="text-xs text-white/90 leading-relaxed mb-6 font-medium">
+          Whether you have a fractured tooth, unwanted spacing, or are looking for a complete smile design, Dr. Saleh Elrayes provides personalized biomimetic care.
+        </p>
+        <ul class="text-xs space-y-2.5 mb-8 text-white/95 font-medium">
+          <li class="flex items-center gap-2">✓ Painless, single-visit tooth fracture repairs</li>
+          <li class="flex items-center gap-2">✓ Bespoke ultra-thin porcelain veneers</li>
+          <li class="flex items-center gap-2">✓ 3D Digital Smile Design preview</li>
+          <li class="flex items-center gap-2">✓ Gentle laser gum recontouring</li>
+        </ul>
+      </div>
+
+      <button class="open-booking-modal-btn w-full py-4 rounded-full bg-white hover:bg-slate-50 text-[#2B6CF5] font-extrabold text-xs shadow-lg transition-all text-center">
+        Schedule Your Case Assessment ↗
+      </button>
+    `;
+    container.appendChild(ctaCard);
+
+    // Bind Like Buttons
+    container.querySelectorAll('.like-btn').forEach(btn => {
       btn.addEventListener('click', function(e) {
         e.preventDefault();
+        e.stopPropagation();
         const svg = btn.querySelector('svg');
         const isLiked = btn.getAttribute('data-liked') === 'true';
-        
         if (!isLiked) {
           btn.setAttribute('data-liked', 'true');
           btn.classList.add('text-rose-500');
@@ -607,7 +888,6 @@
             svg.classList.remove('fill-none');
             svg.classList.add('fill-current');
           }
-          // Micro pop animation
           btn.style.transform = 'scale(1.25)';
           setTimeout(() => { btn.style.transform = 'scale(1)'; }, 180);
         } else {
@@ -621,7 +901,181 @@
         }
       });
     });
+
+    // Bind Lightbox Openers
+    container.querySelectorAll('.open-gallery-btn').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        const caseIdx = parseInt(el.getAttribute('data-case-index'));
+        if (!isNaN(caseIdx) && cases[caseIdx]) {
+          openLightboxModal(cases[caseIdx], 0);
+        }
+      });
+    });
+
+    // Re-bind booking triggers on newly rendered card
+    document.querySelectorAll('.open-booking-modal-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modal = document.getElementById('booking-modal');
+        if (modal) modal.classList.remove('hidden');
+      });
+    });
   }
+
+  // --------------------------------------------------------------------------
+  // MULTI-PHOTO LIGHTBOX MODAL CONTROLLER
+  // --------------------------------------------------------------------------
+  const lightboxModal = document.getElementById('lightbox-modal');
+  const closeLightboxBtn = document.getElementById('close-lightbox-btn');
+  const lightboxMainImg = document.getElementById('lightbox-main-img');
+  const lightboxPrevBtn = document.getElementById('lightbox-prev-btn');
+  const lightboxNextBtn = document.getElementById('lightbox-next-btn');
+  const lightboxCounterPill = document.getElementById('lightbox-counter-pill');
+  const lightboxThumbnailsStrip = document.getElementById('lightbox-thumbnails-strip');
+
+  const lightboxCategory = document.getElementById('lightbox-category');
+  const lightboxDate = document.getElementById('lightbox-date');
+  const lightboxTitle = document.getElementById('lightbox-title');
+  const lightboxTooth = document.getElementById('lightbox-tooth');
+  const lightboxDiagnosis = document.getElementById('lightbox-diagnosis');
+  const lightboxNarrative = document.getElementById('lightbox-narrative');
+  const lightboxHighlights = document.getElementById('lightbox-highlights');
+  const lightboxHighlightsContainer = document.getElementById('lightbox-highlights-container');
+  const lightboxTags = document.getElementById('lightbox-tags');
+
+  function openLightboxModal(caseItem, startIndex = 0) {
+    if (!lightboxModal || !caseItem) return;
+
+    currentGalleryCase = caseItem;
+    currentGalleryCase._parsedPhotos = parseCasePhotos(caseItem.images || caseItem.image || caseItem.image_url, caseItem.cover_image);
+    currentGalleryIndex = Math.max(0, Math.min(startIndex, currentGalleryCase._parsedPhotos.length - 1));
+
+    // Populate Sidebar Details (Omit procedure steps, focus on clinical narrative & highlights)
+    if (lightboxCategory) lightboxCategory.textContent = caseItem.category || 'Restorative';
+    if (lightboxDate) lightboxDate.textContent = caseItem.treatment_date || 'Recent Clinical Case';
+    if (lightboxTitle) lightboxTitle.textContent = caseItem.title || 'Clinical Outcome';
+    if (lightboxTooth) lightboxTooth.textContent = caseItem.tooth_location || 'Maxillary Anterior';
+    if (lightboxDiagnosis) lightboxDiagnosis.textContent = caseItem.diagnosis || 'Restorative Protocol';
+    if (lightboxNarrative) lightboxNarrative.textContent = caseItem.clinical_narrative || caseItem.preOpDesc || '';
+
+    if (lightboxHighlights) {
+      const rawHL = caseItem.highlights || caseItem.clinicalNotes || '';
+      if (rawHL) {
+        lightboxHighlightsContainer.classList.remove('hidden');
+        const items = rawHL.split(';').map(s => s.trim()).filter(Boolean);
+        lightboxHighlights.innerHTML = items.map(it => `
+          <div class="flex items-start gap-1.5">
+            <span class="text-[#2B6CF5] font-bold">✓</span>
+            <span>${it}</span>
+          </div>
+        `).join('');
+      } else {
+        lightboxHighlightsContainer.classList.add('hidden');
+      }
+    }
+
+    if (lightboxTags) {
+      const tags = Array.isArray(caseItem.tags) 
+        ? caseItem.tags 
+        : (typeof caseItem.tags === 'string' ? caseItem.tags.split(',').map(t => t.trim()).filter(Boolean) : []);
+      lightboxTags.innerHTML = tags.map(t => `
+        <span class="px-2 py-0.5 rounded-md bg-[#D2E2FF]/60 text-[#2B6CF5] text-[10px] font-bold">
+          #${t.replace(/^#/, '')}
+        </span>
+      `).join('');
+    }
+
+    renderActiveGalleryPhoto();
+    lightboxModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+
+  function closeLightboxModal() {
+    if (!lightboxModal) return;
+    lightboxModal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+  }
+
+  function renderActiveGalleryPhoto() {
+    if (!currentGalleryCase || !currentGalleryCase._parsedPhotos) return;
+
+    const photos = currentGalleryCase._parsedPhotos;
+    const total = photos.length;
+
+    // Set Image with smooth transition
+    lightboxMainImg.style.opacity = '0.3';
+    setTimeout(() => {
+      lightboxMainImg.src = photos[currentGalleryIndex];
+      lightboxMainImg.style.opacity = '1';
+    }, 80);
+
+    // Update Counter Pill
+    if (lightboxCounterPill) {
+      lightboxCounterPill.textContent = `Photo ${currentGalleryIndex + 1} of ${total}`;
+    }
+
+    // Toggle Prev / Next arrows visibility if single photo
+    if (total <= 1) {
+      if (lightboxPrevBtn) lightboxPrevBtn.classList.add('hidden');
+      if (lightboxNextBtn) lightboxNextBtn.classList.add('hidden');
+      if (lightboxThumbnailsStrip) lightboxThumbnailsStrip.classList.add('hidden');
+    } else {
+      if (lightboxPrevBtn) lightboxPrevBtn.classList.remove('hidden');
+      if (lightboxNextBtn) lightboxNextBtn.classList.remove('hidden');
+      if (lightboxThumbnailsStrip) {
+        lightboxThumbnailsStrip.classList.remove('hidden');
+        lightboxThumbnailsStrip.innerHTML = '';
+
+        photos.forEach((url, i) => {
+          const thumbBtn = document.createElement('button');
+          thumbBtn.className = `w-12 h-12 rounded-xl overflow-hidden border-2 transition-all flex-shrink-0 ${
+            i === currentGalleryIndex ? 'border-[#2B6CF5] scale-105 shadow-md' : 'border-white/30 opacity-60 hover:opacity-100'
+          }`;
+          thumbBtn.innerHTML = `<img src="${url}" alt="Thumbnail ${i + 1}" class="w-full h-full object-cover">`;
+          thumbBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            currentGalleryIndex = i;
+            renderActiveGalleryPhoto();
+          });
+          lightboxThumbnailsStrip.appendChild(thumbBtn);
+        });
+      }
+    }
+  }
+
+  function stepGallery(delta) {
+    if (!currentGalleryCase || !currentGalleryCase._parsedPhotos) return;
+    const total = currentGalleryCase._parsedPhotos.length;
+    if (total <= 1) return;
+
+    currentGalleryIndex = (currentGalleryIndex + delta + total) % total;
+    renderActiveGalleryPhoto();
+  }
+
+  // Gallery Navigation Events
+  if (closeLightboxBtn) closeLightboxBtn.addEventListener('click', closeLightboxModal);
+  if (lightboxPrevBtn) lightboxPrevBtn.addEventListener('click', (e) => { e.stopPropagation(); stepGallery(-1); });
+  if (lightboxNextBtn) lightboxNextBtn.addEventListener('click', (e) => { e.stopPropagation(); stepGallery(1); });
+
+  // Close when clicking backdrop
+  if (lightboxModal) {
+    lightboxModal.addEventListener('click', (e) => {
+      if (e.target === lightboxModal) closeLightboxModal();
+    });
+  }
+
+  // Keyboard Arrow Navigation (← / →) & ESC to close
+  window.addEventListener('keydown', (e) => {
+    if (lightboxModal && !lightboxModal.classList.contains('hidden')) {
+      if (e.key === 'ArrowLeft') {
+        stepGallery(-1);
+      } else if (e.key === 'ArrowRight') {
+        stepGallery(1);
+      } else if (e.key === 'Escape') {
+        closeLightboxModal();
+      }
+    }
+  });
 
   // --------------------------------------------------------------------------
   // PROCEDURES MATRIX
@@ -1335,7 +1789,7 @@
     });
     initNav();
     initHeroCanvas();
-    initInstagramFeed();
+    renderDynamicCasesFeed();
     initProcedures();
     renderTechnologyCards();
     initTreatmentQuiz();

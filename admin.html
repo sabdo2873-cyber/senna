@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor Portal &amp; Clinical Case Manager | Dr. Saleh Elrayes</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              blue: '#2B6CF5',
+              lavender: '#CFA3F6',
+              dark: '#00000F',
+              periwinkle: '#B1BEFB',
+              ice: '#D2E2FF',
+              muted: '#4A4A50',
+              sky: '#DCE9FF',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Supabase JS SDK v2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Custom CSS for medical glassmorphism -->
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Custom utility styles for Doctor Admin */
+    .pin-input {
+      letter-spacing: 0.4em;
+      text-align: center;
+    }
+    .badge-endodontics {
+      background-color: #EDE9FE;
+      color: #6D28D9;
+      border: 1px solid #DDD6FE;
+    }
+    .badge-restorative {
+      background-color: #EFF6FF;
+      color: #1D4ED8;
+      border: 1px solid #BFDBFE;
+    }
+    .badge-aesthetics {
+      background-color: #FAF5FF;
+      color: #7E22CE;
+      border: 1px solid #F3E8FF;
+    }
+    .badge-surgery {
+      background-color: #FEF2F2;
+      color: #B91C1C;
+      border: 1px solid #FECACA;
+    }
+  </style>
+</head>
+<body class="bg-[#F4F8FF] text-[#00000F] min-h-screen selection:bg-[#2B6CF5] selection:text-white">
+
+  <!-- =========================================================================
+       1. SECURITY PIN GATE OVERLAY
+       ========================================================================= -->
+  <div id="pin-gate" class="fixed inset-0 z-50 bg-[#00000F]/70 backdrop-blur-xl flex items-center justify-center p-4 transition-opacity duration-300">
+    <div class="glass-panel-elevated bg-white/95 rounded-3xl p-8 max-w-md w-full shadow-2xl border border-white/60 relative overflow-hidden">
+      <!-- Ambient Glow Orb -->
+      <div class="absolute -top-16 -right-16 w-36 h-36 bg-[#2B6CF5]/20 rounded-full blur-2xl pointer-events-none"></div>
+      
+      <div class="flex items-center gap-3.5 mb-6">
+        <div class="w-12 h-12 rounded-2xl bg-[#D2E2FF] border border-[#B1BEFB] flex items-center justify-center text-[#2B6CF5] shadow-inner">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        </div>
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-widest text-[#2B6CF5] block">Clinical Security</span>
+          <h2 class="text-xl font-black text-[#00000F]">Doctor Portal Access</h2>
+        </div>
+      </div>
+
+      <p class="text-xs text-[#4A4A50] mb-6 leading-relaxed">
+        Please enter the clinical authorization passcode to manage Dr. Saleh Elrayes's case portfolio and live database.
+      </p>
+
+      <form id="pin-form" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-[#00000F] mb-1.5" for="pin-input">Doctor Access PIN / Password</label>
+          <input 
+            type="password" 
+            id="pin-input" 
+            placeholder="••••" 
+            maxlength="20"
+            autocomplete="current-password"
+            class="w-full px-4 py-3.5 rounded-2xl bg-slate-50 border border-[#B1BEFB] text-lg font-bold text-center tracking-widest text-[#00000F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2B6CF5] focus:border-transparent transition-all"
+            required
+            autofocus
+          >
+          <p id="pin-error" class="text-xs text-rose-600 font-bold mt-2 hidden flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Invalid passcode. Please re-enter.</span>
+          </p>
+        </div>
+
+        <button 
+          type="submit" 
+          class="w-full py-3.5 rounded-full bg-[#2B6CF5] hover:bg-[#1f57d6] text-white font-extrabold text-sm shadow-lg shadow-[#2B6CF5]/30 transition-all flex items-center justify-center gap-2"
+        >
+          <span>Unlock Portal</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
+
+        <div class="pt-2 flex items-center justify-between text-[11px] text-slate-400">
+          <span>Dr. Saleh Elrayes, BDS, DDS</span>
+          <a href="index.html" class="hover:text-[#2B6CF5] font-semibold underline">← Back to Portfolio</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- =========================================================================
+       2. MAIN DOCTOR PORTAL DASHBOARD (Hidden until authenticated)
+       ========================================================================= -->
+  <div id="portal-content" class="hidden min-h-screen flex flex-col">
+
+    <!-- Top Admin Navigation Bar -->
+    <header class="sticky top-0 z-40 bg-[#DCE9FF]/80 backdrop-blur-xl border-b border-[#B1BEFB]/60 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-8 py-3.5 flex items-center justify-between">
+        
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full p-[2px] bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 shadow-md">
+            <img src="assets/images/doctor_raw.jpg" alt="Dr. Saleh" class="w-full h-full rounded-full object-cover border-2 border-white">
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="font-extrabold text-sm text-[#00000F]">Dr. Saleh Elrayes</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#2B6CF5] text-white">DOCTOR ADMIN</span>
+            </div>
+            <span class="text-[11px] text-[#4A4A50] font-medium">Cosmetic &amp; Restorative Specialist</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- View Live Portfolio Link -->
+          <a 
+            href="index.html" 
+            target="_blank" 
+            class="px-3.5 py-2 rounded-full glass-pill hover:bg-white text-xs font-bold text-[#2B6CF5] border border-[#B1BEFB] transition-all flex items-center gap-1.5 shadow-sm"
+          >
+            <span>View Portfolio</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          </a>
+
+          <!-- Seed Defaults Button -->
+          <button 
+            id="seed-defaults-btn"
+            title="Populate fresh database with Dr. Saleh's 5 real documented cases"
+            class="hidden sm:flex px-3.5 py-2 rounded-full bg-white hover:bg-slate-50 text-xs font-bold text-[#4A4A50] hover:text-[#2B6CF5] border border-[#B1BEFB] transition-all items-center gap-1.5 shadow-sm"
+          >
+            <svg class="w-3.5 h-3.5 text-[#CFA3F6]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span>Seed Defaults</span>
+          </button>
+
+          <!-- Logout Button -->
+          <button 
+            id="logout-btn"
+            class="p-2 rounded-full bg-white hover:bg-rose-50 text-slate-400 hover:text-rose-600 border border-slate-200 transition-colors"
+            title="Lock Portal"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Main Body Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-8 py-8 flex-grow w-full">
+      
+      <!-- Top Stats Overview Bar -->
+      <section class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        
+        <!-- Total Cases -->
+        <div class="glass-panel rounded-3xl p-5 border border-[#B1BEFB]/60">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-[#4A4A50] uppercase tracking-wider">Total Cases</span>
+            <span class="w-7 h-7 rounded-xl bg-[#D2E2FF] flex items-center justify-center text-[#2B6CF5]">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            </span>
+          </div>
+          <div class="text-3xl font-black text-[#00000F]" id="stat-total-cases">0</div>
+          <span class="text-[11px] text-[#2B6CF5] font-semibold">Live in Portfolio</span>
+        </div>
+
+        <!-- Endodontics -->
+        <div class="glass-panel rounded-3xl p-5 border border-[#B1BEFB]/60">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-[#4A4A50] uppercase tracking-wider">Endodontics</span>
+            <span class="w-7 h-7 rounded-xl bg-[#FAF5FF] flex items-center justify-center text-[#7E22CE]">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </span>
+          </div>
+          <div class="text-3xl font-black text-[#00000F]" id="stat-endo-cases">0</div>
+          <span class="text-[11px] text-[#7E22CE] font-semibold">Endo Reconstructions</span>
+        </div>
+
+        <!-- Restorative -->
+        <div class="glass-panel rounded-3xl p-5 border border-[#B1BEFB]/60">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-[#4A4A50] uppercase tracking-wider">Restorative</span>
+            <span class="w-7 h-7 rounded-xl bg-[#EFF6FF] flex items-center justify-center text-[#1D4ED8]">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </span>
+          </div>
+          <div class="text-3xl font-black text-[#00000F]" id="stat-restorative-cases">0</div>
+          <span class="text-[11px] text-[#1D4ED8] font-semibold">Biomimetic &amp; Direct</span>
+        </div>
+
+        <!-- Aesthetics -->
+        <div class="glass-panel rounded-3xl p-5 border border-[#B1BEFB]/60">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-[#4A4A50] uppercase tracking-wider">Aesthetics</span>
+            <span class="w-7 h-7 rounded-xl bg-[#F0FDF4] flex items-center justify-center text-emerald-600">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+            </span>
+          </div>
+          <div class="text-3xl font-black text-[#00000F]" id="stat-aesthetics-cases">0</div>
+          <span class="text-[11px] text-emerald-600 font-semibold">Veneers &amp; Gingival</span>
+        </div>
+
+      </section>
+
+      <!-- Case Management Action Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div>
+          <h1 class="text-2xl font-black text-[#00000F] tracking-tight">Clinical Documentation Hub</h1>
+          <p class="text-xs text-[#4A4A50] mt-0.5">Manage before &amp; after case studies, clinical photos, and procedures in real time.</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Live Search Input -->
+          <div class="relative">
+            <input 
+              type="text" 
+              id="search-input" 
+              placeholder="Search diagnosis, tooth, tag..." 
+              class="pl-9 pr-4 py-2.5 rounded-full bg-white border border-[#B1BEFB] text-xs font-semibold text-[#00000F] focus:outline-none focus:ring-2 focus:ring-[#2B6CF5] w-64 shadow-sm"
+            >
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+
+          <!-- Add New Case CTA -->
+          <button 
+            id="open-create-modal-btn"
+            class="px-5 py-2.5 rounded-full bg-[#2B6CF5] hover:bg-[#1f57d6] text-white font-extrabold text-xs shadow-lg shadow-[#2B6CF5]/30 transition-all flex items-center gap-2 transform active:scale-95"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            <span>Add Clinical Case</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Case Studies Table / Grid -->
+      <div class="glass-panel rounded-3xl overflow-hidden border border-[#B1BEFB]/60 shadow-lg">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-[#DCE9FF]/50 border-b border-[#B1BEFB]/40 text-[11px] font-bold text-[#4A4A50] uppercase tracking-wider">
+                <th class="py-3.5 px-5">Clinical Case</th>
+                <th class="py-3.5 px-4">Category</th>
+                <th class="py-3.5 px-4">Tooth &amp; Diagnosis</th>
+                <th class="py-3.5 px-4 text-center">Photos</th>
+                <th class="py-3.5 px-4">Treatment Date</th>
+                <th class="py-3.5 px-5 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="cases-table-body" class="divide-y divide-slate-100 text-xs">
+              <!-- Dynamically populated rows -->
+              <tr>
+                <td colspan="6" class="py-12 text-center text-slate-400 font-medium">
+                  Loading clinical cases...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-6 border-t border-[#B1BEFB]/40 text-center text-xs text-slate-500">
+      <span>Dr. Saleh Elrayes Clinical Suite &bull; Secured with Client Compression &amp; Direct Cloud Sync</span>
+    </footer>
+  </div>
+
+
+  <!-- =========================================================================
+       3. COMPACT & ERGONOMIC CASE FORM MODAL (max-h-[92vh])
+       ========================================================================= -->
+  <div id="case-modal" class="fixed inset-0 z-50 bg-[#00000F]/60 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="glass-panel-elevated bg-white rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl border border-white/80 overflow-hidden transform transition-all">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-4 bg-gradient-to-r from-[#DCE9FF]/80 via-white to-white border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-2xl bg-[#2B6CF5] text-white flex items-center justify-center shadow-md">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <div>
+            <h2 id="modal-heading" class="text-lg font-black text-[#00000F]">Add New Clinical Case</h2>
+            <p class="text-[11px] text-[#4A4A50]">Document pre-op, surgical execution, and final biomimetic result</p>
+          </div>
+        </div>
+
+        <button id="close-modal-btn" class="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-black transition-colors" aria-label="Close modal">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Modal Body (Internal Scroll) -->
+      <form id="case-form" class="overflow-y-auto px-6 py-5 space-y-4 flex-grow text-xs">
+        <input type="hidden" id="case-id">
+
+        <!-- Row 1: Case Title (2 cols) + Category Dropdown (1 col) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="sm:col-span-2">
+            <label class="block font-bold text-[#00000F] mb-1" for="case-title-input">
+              Case Title <span class="text-rose-500">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="case-title-input" 
+              placeholder="e.g. Traumatic Central Incisor Fracture Reconstruction" 
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-[#B1BEFB] text-xs font-semibold text-[#00000F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2B6CF5]"
+              required
+            >
+          </div>
+          <div>
+            <label class="block font-bold text-[#00000F] mb-1" for="case-category-input">
+              Category <span class="text-rose-500">*</span>
+            </label>
+            <select 
+              id="case-category-input"
+              class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-[#B1BEFB] text-xs font-bold text-[#00000F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2B6CF5]"
+              required
+            >
+              <option value="Restorative">Direct Restorative</option>
+              <option value="Endodontics">Endodontics</option>
+              <option value="Aesthetics">Cosmetic &amp; Veneers</option>
+              <option value="Surgery">Surgery &amp; Implants</option>
+              <option value="Periodontics">Laser &amp; Periodontics</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 2: Tooth Location + Diagnosis + Treatment Date (3 cols) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-[#00000F] mb-1" for="case-tooth-input">Tooth Location</label>
+            <input 
+              type="text" 
+              id="case-tooth-input" 
+              placeholder="e.g. #8, #9 Maxillary Centrals" 
+              class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-[#B1BEFB] text-xs font-medium text-[#00000F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2B6CF5]"
+            >
+          </div>
+          <div>
+            <label class="block font-bold text-[#00000F] mb-1" for="case-diagnosis-input">Clinical Diagnosis</label>
+            <input 
+              type="text" 
+              id="case-diagnosis-input" 
+              placeholder="e.g. Oblique enamel-dentin fracture" 
+              class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-[#B1BEFB] text-xs font-medium text-[#00000F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2B6CF5]"
+            >
+          </div>
+          <div>
+            <label class="block font-bold text-[#00000F] mb-1" for="case-date-input">Treatment Date</label>
+            <input 
+              type="date" 
+              id="case-date-input" 
+              class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-[#B1BEFB] text-xs font-medium text-[#00000F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2B6CF5]"
+            >
+          </div>
+        </div>
+
+        <!-- Row 3: Clinical Narrative & Objective (compact 2-row textarea) -->
+        <div>
+          <label class="block font-bold text-[#00000F] mb-1" for="case-narrative-input">
+            Clinical Narrative &amp; Objective <span class="text-rose-500">*</span>
+          </label>
+          <textarea 
+            id="case-narrative-input" 
+            rows="2" 
+            placeholder="Brief clinical background, protocol executed, and aesthetic/functional result achieved..." 
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-[#B1BEFB] text-xs font-normal text-[#00000F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2B6CF5] leading-relaxed"
+            required
+          ></textarea>
+        </div>
+
+        <!-- Row 4: Clinical Highlights + Tags (comma-separated) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-[#00000F] mb-1" for="case-highlights-input">Clinical Highlights (semicolon separated)</label>
+            <input 
+              type="text" 
+              id="case-highlights-input" 
+              placeholder="e.g. Single-visit repair; 95% enamel preserved; Natural mamelons" 
+              class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-[#B1BEFB] text-xs font-medium text-[#00000F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2B6CF5]"
+            >
+          </div>
+          <div>
+            <label class="block font-bold text-[#00000F] mb-1" for="case-tags-input">Hashtags / Keywords (comma separated)</label>
+            <input 
+              type="text" 
+              id="case-tags-input" 
+              placeholder="e.g. TraumaDentistry, Biomimetic, Veneers" 
+              class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-[#B1BEFB] text-xs font-medium text-[#00000F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2B6CF5]"
+            >
+          </div>
+        </div>
+
+        <!-- Row 5: Multi-Photo Dropzone & Live Thumbnails grid (max-h-36) -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block font-bold text-[#00000F]">
+              Clinical Case Photos <span class="text-slate-400 font-normal">(Pre-op, X-rays, Obturation, Post-op)</span>
+            </label>
+            <span class="text-[11px] text-[#2B6CF5] font-semibold" id="photo-count-indicator">0 photos</span>
+          </div>
+
+          <!-- Dropzone -->
+          <div 
+            id="photo-dropzone" 
+            class="border-2 border-dashed border-[#B1BEFB] hover:border-[#2B6CF5] bg-[#D2E2FF]/20 hover:bg-[#D2E2FF]/40 rounded-2xl p-4 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-1 group"
+          >
+            <input type="file" id="file-input" multiple accept="image/*" class="hidden">
+            <svg class="w-7 h-7 text-[#2B6CF5] group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <p class="font-bold text-xs text-[#00000F]">Click or drop clinical images here</p>
+            <p class="text-[10px] text-slate-500">Automatically compressed client-side (Max 1200px @ 82% quality) for rapid sync.</p>
+          </div>
+
+          <!-- Thumbnail Gallery Strip (max-h-36) -->
+          <div id="thumbnails-container" class="mt-3 flex items-center gap-3 overflow-x-auto py-2 max-h-36 min-h-[70px]">
+            <!-- Dynamic thumbnails -->
+            <p class="text-[11px] text-slate-400 italic py-2">No photos uploaded yet.</p>
+          </div>
+        </div>
+
+      </form>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+        <button 
+          type="button" 
+          id="cancel-modal-btn"
+          class="px-5 py-2 rounded-full bg-white hover:bg-slate-100 text-slate-600 font-bold text-xs border border-slate-200 transition-colors"
+        >
+          Cancel
+        </button>
+
+        <button 
+          type="button" 
+          id="save-case-btn"
+          class="px-6 py-2.5 rounded-full bg-[#2B6CF5] hover:bg-[#1f57d6] text-white font-extrabold text-xs shadow-lg shadow-[#2B6CF5]/30 transition-all flex items-center gap-1.5 transform active:scale-95"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+          <span id="save-btn-text">Save Clinical Case</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- =========================================================================
+       4. CLIENT-SIDE CANVAS COMPRESSION & ADMIN CONTROLLER JAVASCRIPT
+       ========================================================================= -->
+  <script type="module">
+    import { 
+      fetchSupabaseCases, 
+      createSupabaseCase, 
+      updateSupabaseCase, 
+      deleteSupabaseCase, 
+      seedDefaultCases,
+      normalizeCaseImages 
+    } from './js/supabase-config.js';
+
+    // State Variables
+    let allCases = [];
+    let currentEditingId = null;
+    let stagedImages = []; // Array of data URLs or remote URLs
+
+    // --------------------------------------------------------------------------
+    // 1. PIN GATE AUTHENTICATION
+    // --------------------------------------------------------------------------
+    const VALID_PINS = ['2025', 'ahmed2025', 'saleh2025'];
+    const pinGate = document.getElementById('pin-gate');
+    const portalContent = document.getElementById('portal-content');
+    const pinForm = document.getElementById('pin-form');
+    const pinInput = document.getElementById('pin-input');
+    const pinError = document.getElementById('pin-error');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    function checkAuthSession() {
+      const isAuth = sessionStorage.getItem('doctor_portal_auth') === 'true';
+      if (isAuth) {
+        unlockPortal();
+      } else {
+        pinGate.classList.remove('hidden');
+        portalContent.classList.add('hidden');
+        pinInput.focus();
+      }
+    }
+
+    function unlockPortal() {
+      sessionStorage.setItem('doctor_portal_auth', 'true');
+      pinGate.classList.add('opacity-0');
+      setTimeout(() => {
+        pinGate.classList.add('hidden');
+        portalContent.classList.remove('hidden');
+        loadPortalData();
+      }, 250);
+    }
+
+    pinForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const entered = pinInput.value.trim();
+      if (VALID_PINS.includes(entered)) {
+        pinError.classList.add('hidden');
+        unlockPortal();
+      } else {
+        pinError.classList.remove('hidden');
+        pinInput.value = '';
+        pinInput.focus();
+      }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      sessionStorage.removeItem('doctor_portal_auth');
+      pinGate.classList.remove('opacity-0', 'hidden');
+      portalContent.classList.add('hidden');
+      pinInput.value = '';
+    });
+
+    // --------------------------------------------------------------------------
+    // 2. CLIENT-SIDE CANVAS IMAGE COMPRESSION
+    // (Max 1200px width, 0.82 JPEG quality for lightweight payloads)
+    // --------------------------------------------------------------------------
+    async function compressImageFile(file, maxWidth = 1200, quality = 0.82) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+            resolve(compressedDataUrl);
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // --------------------------------------------------------------------------
+    // 3. MULTI-PHOTO DROPZONE & THUMBNAIL GALLERY CONTROLS
+    // --------------------------------------------------------------------------
+    const dropzone = document.getElementById('photo-dropzone');
+    const fileInput = document.getElementById('file-input');
+    const thumbnailsContainer = document.getElementById('thumbnails-container');
+    const photoCountIndicator = document.getElementById('photo-count-indicator');
+
+    dropzone.addEventListener('click', () => fileInput.click());
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('border-[#2B6CF5]', 'bg-[#D2E2FF]/50');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('border-[#2B6CF5]', 'bg-[#D2E2FF]/50');
+    });
+
+    dropzone.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('border-[#2B6CF5]', 'bg-[#D2E2FF]/50');
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        await handleSelectedFiles(e.dataTransfer.files);
+      }
+    });
+
+    fileInput.addEventListener('change', async (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        await handleSelectedFiles(e.target.files);
+      }
+    });
+
+    async function handleSelectedFiles(files) {
+      for (const file of Array.from(files)) {
+        if (!file.type.startsWith('image/')) continue;
+        try {
+          const compressed = await compressImageFile(file);
+          stagedImages.push(compressed);
+        } catch (err) {
+          console.error("Compression error:", err);
+        }
+      }
+      renderThumbnails();
+    }
+
+    function renderThumbnails() {
+      thumbnailsContainer.innerHTML = '';
+      photoCountIndicator.textContent = `${stagedImages.length} photo${stagedImages.length === 1 ? '' : 's'}`;
+
+      if (stagedImages.length === 0) {
+        thumbnailsContainer.innerHTML = '<p class="text-[11px] text-slate-400 italic py-2">No photos uploaded yet.</p>';
+        return;
+      }
+
+      stagedImages.forEach((imgSrc, index) => {
+        const thumb = document.createElement('div');
+        thumb.className = 'relative flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all group ' + 
+          (index === 0 ? 'border-[#2B6CF5] ring-2 ring-[#2B6CF5]/30' : 'border-slate-200');
+
+        thumb.innerHTML = `
+          <img src="${imgSrc}" alt="Photo ${index + 1}" class="w-full h-full object-cover">
+          ${index === 0 ? '<span class="absolute top-1 left-1 bg-[#2B6CF5] text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow">COVER</span>' : ''}
+          
+          <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-1">
+            ${index !== 0 ? `
+              <button type="button" data-action="make-cover" data-index="${index}" title="Make Cover Photo" class="p-1 rounded bg-white/90 text-[#2B6CF5] hover:bg-white text-[10px] font-bold">
+                ★
+              </button>
+            ` : ''}
+            <button type="button" data-action="delete" data-index="${index}" title="Remove photo" class="p-1 rounded bg-rose-600/90 text-white hover:bg-rose-600 text-[10px] font-bold">
+              ✕
+            </button>
+          </div>
+        `;
+
+        thumbnailsContainer.appendChild(thumb);
+      });
+
+      // Attach button events
+      thumbnailsContainer.querySelectorAll('button[data-action="make-cover"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const idx = parseInt(btn.getAttribute('data-index'));
+          const selected = stagedImages.splice(idx, 1)[0];
+          stagedImages.unshift(selected); // Put at start
+          renderThumbnails();
+        });
+      });
+
+      thumbnailsContainer.querySelectorAll('button[data-action="delete"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const idx = parseInt(btn.getAttribute('data-index'));
+          stagedImages.splice(idx, 1);
+          renderThumbnails();
+        });
+      });
+    }
+
+    // --------------------------------------------------------------------------
+    // 4. PORTAL DATA & STATS LOADER
+    // --------------------------------------------------------------------------
+    async function loadPortalData() {
+      allCases = await fetchSupabaseCases();
+      updateStats();
+      renderCasesTable();
+    }
+
+    function updateStats() {
+      const total = allCases.length;
+      const endo = allCases.filter(c => (c.category || '').toLowerCase().includes('endo')).length;
+      const restorative = allCases.filter(c => (c.category || '').toLowerCase().includes('restorative')).length;
+      const aesthetics = allCases.filter(c => 
+        (c.category || '').toLowerCase().includes('aesthet') || 
+        (c.category || '').toLowerCase().includes('veneer') || 
+        (c.category || '').toLowerCase().includes('periodont')
+      ).length;
+
+      document.getElementById('stat-total-cases').textContent = total;
+      document.getElementById('stat-endo-cases').textContent = endo;
+      document.getElementById('stat-restorative-cases').textContent = restorative;
+      document.getElementById('stat-aesthetics-cases').textContent = aesthetics;
+    }
+
+    function renderCasesTable(filteredList = null) {
+      const tbody = document.getElementById('cases-table-body');
+      const list = filteredList !== null ? filteredList : allCases;
+
+      if (!list || list.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="py-12 text-center text-slate-400 font-medium">
+              No clinical cases found. Click "Add Clinical Case" or "Seed Defaults" to populate.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = '';
+
+      list.forEach(c => {
+        const images = normalizeCaseImages(c.images || c.image);
+        const cover = images[0] || 'assets/images/doctor_case_fracture.jpg';
+        const photoCount = images.length;
+        const cat = (c.category || 'Restorative').toLowerCase();
+        
+        let badgeClass = 'badge-restorative';
+        if (cat.includes('endo')) badgeClass = 'badge-endodontics';
+        else if (cat.includes('aesthet') || cat.includes('veneer')) badgeClass = 'badge-aesthetics';
+        else if (cat.includes('surg')) badgeClass = 'badge-surgery';
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/80 transition-colors';
+        tr.innerHTML = `
+          <td class="py-3.5 px-5">
+            <div class="flex items-center gap-3">
+              <img src="${cover}" alt="${c.title}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 shadow-sm flex-shrink-0">
+              <div class="max-w-xs">
+                <span class="font-extrabold text-[#00000F] text-xs block leading-snug line-clamp-1">${c.title}</span>
+                <span class="text-[11px] text-slate-500 line-clamp-1">${c.clinical_narrative || ''}</span>
+              </div>
+            </div>
+          </td>
+          <td class="py-3.5 px-4">
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${badgeClass}">
+              ${c.category || 'General'}
+            </span>
+          </td>
+          <td class="py-3.5 px-4">
+            <span class="font-bold text-[#00000F] block text-xs">${c.tooth_location || 'Anterior'}</span>
+            <span class="text-[11px] text-slate-500 block line-clamp-1">${c.diagnosis || 'Undocumented'}</span>
+          </td>
+          <td class="py-3.5 px-4 text-center">
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#D2E2FF] text-[#2B6CF5] text-[11px] font-bold">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              ${photoCount}
+            </span>
+          </td>
+          <td class="py-3.5 px-4 text-slate-500 font-medium">
+            ${c.treatment_date || 'Recent'}
+          </td>
+          <td class="py-3.5 px-5 text-right">
+            <div class="inline-flex items-center gap-1.5">
+              <button data-action="edit" data-id="${c.id}" class="p-1.5 rounded-lg hover:bg-[#D2E2FF] text-slate-500 hover:text-[#2B6CF5] transition-colors" title="Edit Case">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              </button>
+              <button data-action="delete" data-id="${c.id}" class="p-1.5 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors" title="Delete Case">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              </button>
+            </div>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+
+      // Bind row actions
+      tbody.querySelectorAll('button[data-action="edit"]').forEach(btn => {
+        btn.addEventListener('click', () => openEditModal(btn.getAttribute('data-id')));
+      });
+
+      tbody.querySelectorAll('button[data-action="delete"]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.getAttribute('data-id');
+          if (confirm("Are you sure you want to delete this clinical case?")) {
+            await deleteSupabaseCase(id);
+            await loadPortalData();
+          }
+        });
+      });
+    }
+
+    // --------------------------------------------------------------------------
+    // 5. SEARCH FILTERING
+    // --------------------------------------------------------------------------
+    const searchInput = document.getElementById('search-input');
+    searchInput.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      if (!q) {
+        renderCasesTable();
+        return;
+      }
+      const filtered = allCases.filter(c => {
+        return (
+          (c.title || '').toLowerCase().includes(q) ||
+          (c.diagnosis || '').toLowerCase().includes(q) ||
+          (c.tooth_location || '').toLowerCase().includes(q) ||
+          (c.category || '').toLowerCase().includes(q) ||
+          (c.clinical_narrative || '').toLowerCase().includes(q) ||
+          (Array.isArray(c.tags) && c.tags.some(t => t.toLowerCase().includes(q)))
+        );
+      });
+      renderCasesTable(filtered);
+    });
+
+    // --------------------------------------------------------------------------
+    // 6. SEED DEFAULTS BUTTON
+    // --------------------------------------------------------------------------
+    const seedBtn = document.getElementById('seed-defaults-btn');
+    seedBtn.addEventListener('click', async () => {
+      if (confirm("Reset and seed Dr. Saleh's 5 authentic documented clinical cases?")) {
+        await seedDefaultCases();
+        await loadPortalData();
+        alert("Clinical cases successfully synced!");
+      }
+    });
+
+    // --------------------------------------------------------------------------
+    // 7. CASE MODAL (CREATE / EDIT)
+    // --------------------------------------------------------------------------
+    const caseModal = document.getElementById('case-modal');
+    const openCreateBtn = document.getElementById('open-create-modal-btn');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const cancelModalBtn = document.getElementById('cancel-modal-btn');
+    const saveCaseBtn = document.getElementById('save-case-btn');
+    const modalHeading = document.getElementById('modal-heading');
+    const saveBtnText = document.getElementById('save-btn-text');
+
+    function openCreateModal() {
+      currentEditingId = null;
+      modalHeading.textContent = "Add New Clinical Case";
+      saveBtnText.textContent = "Save Clinical Case";
+
+      document.getElementById('case-id').value = '';
+      document.getElementById('case-title-input').value = '';
+      document.getElementById('case-category-input').value = 'Restorative';
+      document.getElementById('case-tooth-input').value = '';
+      document.getElementById('case-diagnosis-input').value = '';
+      document.getElementById('case-date-input').value = new Date().toISOString().split('T')[0];
+      document.getElementById('case-narrative-input').value = '';
+      document.getElementById('case-highlights-input').value = '';
+      document.getElementById('case-tags-input').value = '';
+
+      stagedImages = [];
+      renderThumbnails();
+
+      caseModal.classList.remove('hidden');
+    }
+
+    function openEditModal(caseId) {
+      const c = allCases.find(item => item.id === caseId);
+      if (!c) return;
+
+      currentEditingId = caseId;
+      modalHeading.textContent = "Edit Clinical Case";
+      saveBtnText.textContent = "Update Case";
+
+      document.getElementById('case-id').value = c.id;
+      document.getElementById('case-title-input').value = c.title || '';
+      document.getElementById('case-category-input').value = c.category || 'Restorative';
+      document.getElementById('case-tooth-input').value = c.tooth_location || '';
+      document.getElementById('case-diagnosis-input').value = c.diagnosis || '';
+      document.getElementById('case-date-input').value = c.treatment_date || '';
+      document.getElementById('case-narrative-input').value = c.clinical_narrative || '';
+      document.getElementById('case-highlights-input').value = c.highlights || '';
+      document.getElementById('case-tags-input').value = Array.isArray(c.tags) ? c.tags.join(', ') : (c.tags || '');
+
+      stagedImages = [...normalizeCaseImages(c.images || c.image)];
+      renderThumbnails();
+
+      caseModal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+      caseModal.classList.add('hidden');
+    }
+
+    openCreateBtn.addEventListener('click', openCreateModal);
+    closeModalBtn.addEventListener('click', closeModal);
+    cancelModalBtn.addEventListener('click', closeModal);
+
+    // Save handler
+    saveCaseBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('case-title-input').value.trim();
+      const narrative = document.getElementById('case-narrative-input').value.trim();
+
+      if (!title || !narrative) {
+        alert("Please enter a Case Title and Clinical Narrative.");
+        return;
+      }
+
+      if (stagedImages.length === 0) {
+        // Provide default fallback photo if none uploaded
+        stagedImages.push('assets/images/doctor_case_fracture.jpg');
+      }
+
+      const caseData = {
+        title: title,
+        category: document.getElementById('case-category-input').value,
+        tooth_location: document.getElementById('case-tooth-input').value.trim(),
+        diagnosis: document.getElementById('case-diagnosis-input').value.trim(),
+        treatment_date: document.getElementById('case-date-input').value,
+        clinical_narrative: narrative,
+        highlights: document.getElementById('case-highlights-input').value.trim(),
+        tags: document.getElementById('case-tags-input').value.split(',').map(s => s.trim()).filter(Boolean),
+        images: stagedImages
+      };
+
+      saveCaseBtn.disabled = true;
+      saveBtnText.textContent = "Syncing...";
+
+      try {
+        if (currentEditingId) {
+          await updateSupabaseCase(currentEditingId, caseData);
+        } else {
+          await createSupabaseCase(caseData);
+        }
+        await loadPortalData();
+        closeModal();
+      } catch (err) {
+        console.error("Save error:", err);
+        alert("Failed to save case: " + err.message);
+      } finally {
+        saveCaseBtn.disabled = false;
+        saveBtnText.textContent = currentEditingId ? "Update Case" : "Save Clinical Case";
+      }
+    });
+
+    // Run auth check on DOM load
+    document.addEventListener('DOMContentLoaded', checkAuthSession);
+  </script>
+</body>
+</html>
