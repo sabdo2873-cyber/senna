@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1329"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <radialGradient id="mouthCavity" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#180c10"/>
+      <stop offset="100%" stop-color="#080406"/>
+    </radialGradient>
+    <linearGradient id="gumBefore" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#7f1d1d"/>
+      <stop offset="100%" stop-color="#991b1b"/>
+    </linearGradient>
+    <linearGradient id="toothWorn" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e2d8b8"/>
+      <stop offset="70%" stop-color="#cfb884"/>
+      <stop offset="100%" stop-color="#99804e"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <!-- Background Clinical Canvas -->
+  <rect width="800" height="500" fill="url(#bgGrad)"/>
+  
+  <!-- Diagnostic Grid Pattern -->
+  <g opacity="0.1" stroke="#38bdf8" stroke-width="0.5">
+    <line x1="100" y1="0" x2="100" y2="500"/>
+    <line x1="200" y1="0" x2="200" y2="500"/>
+    <line x1="300" y1="0" x2="300" y2="500"/>
+    <line x1="400" y1="0" x2="400" y2="500"/>
+    <line x1="500" y1="0" x2="500" y2="500"/>
+    <line x1="600" y1="0" x2="600" y2="500"/>
+    <line x1="700" y1="0" x2="700" y2="500"/>
+    <line x1="0" y1="100" x2="800" y2="100"/>
+    <line x1="0" y1="200" x2="800" y2="200"/>
+    <line x1="0" y1="300" x2="800" y2="300"/>
+    <line x1="0" y1="400" x2="800" y2="400"/>
+  </g>
+
+  <!-- Mouth Outline -->
+  <path d="M 160 250 Q 400 130 640 250 Q 400 390 160 250 Z" fill="url(#mouthCavity)" filter="url(#shadow)"/>
+  
+  <!-- Pre-Op Gums (Receded & Inflamed) -->
+  <path d="M 200 235 Q 260 170 320 205 Q 400 160 480 205 Q 540 170 600 235 Q 400 215 200 235 Z" fill="url(#gumBefore)"/>
+
+  <!-- Pre-Op Teeth (Worn, Attrition, Irregular Gaps, Discolored) -->
+  <g filter="url(#shadow)">
+    <!-- Right Molar / Premolar -->
+    <path d="M 215 228 C 220 210 240 215 245 240 C 242 260 220 255 215 228 Z" fill="url(#toothWorn)"/>
+    <path d="M 250 220 C 260 200 280 205 285 245 C 280 262 255 260 250 220 Z" fill="url(#toothWorn)"/>
+    <!-- Canine -->
+    <path d="M 292 210 C 305 195 328 200 332 255 C 325 270 295 265 292 210 Z" fill="url(#toothWorn)"/>
+    <!-- Lateral Incisor (Worn/chipped) -->
+    <path d="M 338 215 C 348 202 368 208 370 248 C 365 258 340 255 338 215 Z" fill="url(#toothWorn)"/>
+    <!-- Central Incisor 1 (Severe Attrition) -->
+    <path d="M 376 210 C 385 198 408 200 410 252 C 405 260 380 260 376 210 Z" fill="url(#toothWorn)"/>
+    <!-- Central Incisor 2 (Fractured Edge) -->
+    <path d="M 416 208 C 425 200 448 204 445 246 C 440 254 418 252 416 208 Z" fill="url(#toothWorn)"/>
+    <!-- Lateral Incisor 2 (Rotated) -->
+    <path d="M 452 215 C 462 205 480 208 480 245 C 475 258 454 252 452 215 Z" fill="url(#toothWorn)"/>
+    <!-- Left Canine -->
+    <path d="M 488 212 C 500 198 522 205 522 252 C 518 268 492 264 488 212 Z" fill="url(#toothWorn)"/>
+    <!-- Left Premolar -->
+    <path d="M 528 222 C 538 205 558 210 560 245 C 555 260 530 258 528 222 Z" fill="url(#toothWorn)"/>
+    <path d="M 565 230 C 575 218 592 222 590 242 C 585 256 568 254 565 230 Z" fill="url(#toothWorn)"/>
+  </g>
+
+  <!-- Lower Teeth (Crowded / Worn) -->
+  <g fill="#c9b98d" opacity="0.8">
+    <path d="M 320 285 Q 400 310 480 285 Q 400 295 320 285 Z"/>
+  </g>
+
+  <!-- Diagnostic Overlay Watermark -->
+  <rect x="24" y="24" width="130" height="34" rx="8" fill="rgba(15, 23, 42, 0.85)" stroke="#ef4444" stroke-width="1.5"/>
+  <circle cx="42" cy="41" r="5" fill="#ef4444"/>
+  <text x="56" y="46" fill="#fca5a5" font-family="system-ui" font-size="13" font-weight="700" letter-spacing="1">PRE-OP</text>
+
+  <text x="770" y="470" text-anchor="end" fill="rgba(255,255,255,0.4)" font-family="system-ui" font-size="12">CASE #01 • INITIAL CLINICAL PRESENTATION</text>
+</svg>

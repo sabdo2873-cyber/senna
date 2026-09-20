@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <filter id="logoGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#06b6d4" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+
+  <!-- Stylized Geometric Tooth with Modern Precision Curves -->
+  <path d="M 28 32 C 28 18 42 16 50 25 C 58 16 72 18 72 32 C 72 45 68 62 62 82 C 58 92 52 92 50 82 C 48 72 45 62 42 62 C 39 62 36 72 34 82 C 32 92 26 92 22 82 C 16 62 28 45 28 32 Z" 
+        fill="none" 
+        stroke="url(#logoGrad)" 
+        stroke-width="5" 
+        stroke-linejoin="round" 
+        stroke-linecap="round"
+        filter="url(#logoGlow)" />
+
+  <!-- Center Diamond Cross / Surgical Precision Spark -->
+  <polygon points="50,38 54,46 62,50 54,54 50,62 46,54 38,50 46,46" fill="#38bdf8" filter="url(#logoGlow)"/>
+
+  <!-- Orbital Precision Arc -->
+  <path d="M 18 50 A 32 32 0 0 1 82 50" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4,6" opacity="0.6"/>
+</svg>

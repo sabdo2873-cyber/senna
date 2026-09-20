@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="bgGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#080e1e"/>
+      <stop offset="100%" stop-color="#141c2e"/>
+    </linearGradient>
+    <radialGradient id="mouth3" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#15090e"/>
+      <stop offset="100%" stop-color="#080305"/>
+    </radialGradient>
+    <linearGradient id="toothNormal" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="70%" stop-color="#e2e8f0"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </linearGradient>
+    <filter id="shadow3" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#bgGrad3)"/>
+  
+  <path d="M 180 250 Q 400 135 620 250 Q 400 390 180 250 Z" fill="url(#mouth3)" filter="url(#shadow3)"/>
+  
+  <!-- Gums with Traumatic Missing Tooth Ridge Void -->
+  <path d="M 230 230 Q 280 185 330 216 Q 370 175 410 175 Q 450 216 490 185 Q 540 230 570 230 Q 400 220 230 230 Z" fill="#9f1239"/>
+
+  <g filter="url(#shadow3)">
+    <!-- Canine Left -->
+    <path d="M 260 214 C 272 188 296 190 298 252 C 294 262 268 260 260 214 Z" fill="url(#toothNormal)"/>
+    <!-- Lateral Incisor Left -->
+    <path d="M 306 206 C 318 180 340 182 342 256 C 338 266 312 264 306 206 Z" fill="url(#toothNormal)"/>
+    <!-- Central Incisor #8 (Intact) -->
+    <path d="M 348 198 C 360 170 392 170 392 268 C 386 276 354 274 348 198 Z" fill="url(#toothNormal)"/>
+
+    <!-- MISSING TOOTH GAP #9 (Trauma Void with alveolar ridge defect) -->
+    <path d="M 396 210 Q 420 235 444 210 Q 420 218 396 210 Z" fill="#4c0519" stroke="#e11d48" stroke-width="1.5" stroke-dasharray="3,3"/>
+    
+    <!-- Lateral Incisor Right -->
+    <path d="M 450 206 C 462 180 484 182 486 256 C 482 266 456 264 450 206 Z" fill="url(#toothNormal)"/>
+    <!-- Canine Right -->
+    <path d="M 494 214 C 506 188 530 190 532 252 C 528 262 502 260 494 214 Z" fill="url(#toothNormal)"/>
+  </g>
+
+  <!-- Pre-Op Status Badge -->
+  <rect x="24" y="24" width="130" height="34" rx="8" fill="rgba(15, 23, 42, 0.85)" stroke="#ef4444" stroke-width="1.5"/>
+  <circle cx="42" cy="41" r="5" fill="#ef4444"/>
+  <text x="56" y="46" fill="#fca5a5" font-family="system-ui" font-size="13" font-weight="700" letter-spacing="1">PRE-OP</text>
+
+  <text x="770" y="470" text-anchor="end" fill="rgba(255,255,255,0.4)" font-family="system-ui" font-size="12">CASE #03 • TRAUMATIC LOSS OF CENTRAL INCISOR #9</text>
+</svg>

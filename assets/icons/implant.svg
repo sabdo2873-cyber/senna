@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Crown -->
+  <path d="M 16 18 C 16 10 21 8 24 12 C 27 8 32 10 32 18 C 32 22 28 24 24 24 C 20 24 16 22 16 18 Z" fill="rgba(56, 189, 248, 0.15)"/>
+  <!-- Abutment Collar -->
+  <line x1="20" y1="24" x2="28" y2="24"/>
+  <line x1="21" y1="28" x2="27" y2="28"/>
+  <!-- Screw Threads -->
+  <path d="M 22 28 L 22 42 L 24 45 L 26 42 L 26 28"/>
+  <line x1="20" y1="32" x2="26" y2="33"/>
+  <line x1="22" y1="36" x2="28" y2="37"/>
+  <line x1="20" y1="40" x2="26" y2="41"/>
+</svg>

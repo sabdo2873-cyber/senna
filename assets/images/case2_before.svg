@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="bgGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#091024"/>
+      <stop offset="100%" stop-color="#19233c"/>
+    </linearGradient>
+    <radialGradient id="mouth2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1c1015"/>
+      <stop offset="100%" stop-color="#0a0507"/>
+    </radialGradient>
+    <linearGradient id="stainGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ded0b2"/>
+      <stop offset="40%" stop-color="#bda068"/>
+      <stop offset="70%" stop-color="#7c6030"/>
+      <stop offset="100%" stop-color="#b59e70"/>
+    </linearGradient>
+    <filter id="shadow2" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#bgGrad2)"/>
+  
+  <g opacity="0.1" stroke="#38bdf8" stroke-width="0.5">
+    <line x1="100" y1="0" x2="100" y2="500"/><line x1="200" y1="0" x2="200" y2="500"/><line x1="300" y1="0" x2="300" y2="500"/>
+    <line x1="400" y1="0" x2="400" y2="500"/><line x1="500" y1="0" x2="500" y2="500"/><line x1="600" y1="0" x2="600" y2="500"/>
+    <line x1="700" y1="0" x2="700" y2="500"/><line x1="0" y1="250" x2="800" y2="250"/>
+  </g>
+
+  <!-- Smile Mouth Void -->
+  <path d="M 180 250 Q 400 140 620 250 Q 400 380 180 250 Z" fill="url(#mouth2)" filter="url(#shadow2)"/>
+
+  <!-- Asymmetrical Gums -->
+  <path d="M 220 238 Q 280 178 340 216 Q 400 162 460 212 Q 520 182 580 236 Q 400 220 220 238 Z" fill="#991b1b"/>
+
+  <!-- Stained & Chipped Veneer Pre-Op Teeth -->
+  <g filter="url(#shadow2)">
+    <path d="M 270 220 C 280 198 300 200 304 246 C 300 256 276 254 270 220 Z" fill="url(#stainGrad)"/>
+    <path d="M 310 212 C 322 188 342 192 344 252 C 338 262 314 260 310 212 Z" fill="url(#stainGrad)"/>
+    <!-- Central 1 (Chipped incisal corner, fluorosis bands) -->
+    <path d="M 352 205 C 365 180 395 180 396 260 L 382 254 L 358 262 Z" fill="url(#stainGrad)"/>
+    <!-- Central 2 (Discolored, uneven diastema gap) -->
+    <path d="M 406 205 C 418 180 446 182 444 262 C 438 270 410 268 406 205 Z" fill="url(#stainGrad)"/>
+    <path d="M 452 212 C 464 188 484 192 484 252 C 478 262 456 260 452 212 Z" fill="url(#stainGrad)"/>
+    <path d="M 492 220 C 502 198 522 200 524 246 C 520 256 496 254 492 220 Z" fill="url(#stainGrad)"/>
+  </g>
+
+  <!-- Pre-Op Status Badge -->
+  <rect x="24" y="24" width="130" height="34" rx="8" fill="rgba(15, 23, 42, 0.85)" stroke="#ef4444" stroke-width="1.5"/>
+  <circle cx="42" cy="41" r="5" fill="#ef4444"/>
+  <text x="56" y="46" fill="#fca5a5" font-family="system-ui" font-size="13" font-weight="700" letter-spacing="1">PRE-OP</text>
+
+  <text x="770" y="470" text-anchor="end" fill="rgba(255,255,255,0.4)" font-family="system-ui" font-size="12">CASE #02 • TETRACYCLINE STAINING & INCISAL FRACTURES</text>
+</svg>

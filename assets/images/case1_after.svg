@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1329"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <radialGradient id="mouthCavity" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#180c10"/>
+      <stop offset="100%" stop-color="#080406"/>
+    </radialGradient>
+    <linearGradient id="gumAfter" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f472b6"/>
+      <stop offset="100%" stop-color="#e11d48"/>
+    </linearGradient>
+    <linearGradient id="toothZirconia" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="60%" stop-color="#f8fafc"/>
+      <stop offset="88%" stop-color="#e2e8f0"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </linearGradient>
+    <linearGradient id="incisalGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#bae6fd" stop-opacity="0.4"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Background Clinical Canvas -->
+  <rect width="800" height="500" fill="url(#bgGrad)"/>
+  
+  <!-- Diagnostic Grid Pattern -->
+  <g opacity="0.1" stroke="#38bdf8" stroke-width="0.5">
+    <line x1="100" y1="0" x2="100" y2="500"/>
+    <line x1="200" y1="0" x2="200" y2="500"/>
+    <line x1="300" y1="0" x2="300" y2="500"/>
+    <line x1="400" y1="0" x2="400" y2="500"/>
+    <line x1="500" y1="0" x2="500" y2="500"/>
+    <line x1="600" y1="0" x2="600" y2="500"/>
+    <line x1="700" y1="0" x2="700" y2="500"/>
+    <line x1="0" y1="100" x2="800" y2="100"/>
+    <line x1="0" y1="200" x2="800" y2="200"/>
+    <line x1="0" y1="300" x2="800" y2="300"/>
+    <line x1="0" y1="400" x2="800" y2="400"/>
+  </g>
+
+  <!-- Mouth Outline (Fuller, Healthy Smile Arch) -->
+  <path d="M 150 248 Q 400 120 650 248 Q 400 405 150 248 Z" fill="url(#mouthCavity)" filter="url(#shadow)"/>
+
+  <!-- Post-Op Gums (Perfect Scalloped Zeniths & Stippling) -->
+  <path d="M 195 230 Q 235 185 275 220 Q 315 175 355 210 Q 400 165 445 210 Q 485 175 525 220 Q 565 185 605 230 Q 400 215 195 230 Z" fill="url(#gumAfter)"/>
+
+  <!-- Post-Op All-on-6 Zirconia Arch (Golden Ratio Symmetrical Architecture) -->
+  <g filter="url(#shadow)">
+    <!-- Premolar 2 -->
+    <path d="M 215 224 C 224 195 245 198 250 242 C 248 255 222 255 215 224 Z" fill="url(#toothZirconia)"/>
+    <!-- Premolar 1 -->
+    <path d="M 252 216 C 262 188 284 190 289 248 C 285 262 258 260 252 216 Z" fill="url(#toothZirconia)"/>
+    <!-- Canine (Dominant cusp, sculpted contour) -->
+    <path d="M 292 208 C 304 180 328 182 332 260 C 326 274 298 270 292 208 Z" fill="url(#toothZirconia)"/>
+    <!-- Lateral Incisor (Delicate symmetry) -->
+    <path d="M 336 200 C 347 176 368 178 372 264 C 367 274 341 272 336 200 Z" fill="url(#toothZirconia)"/>
+    <!-- Central Incisor 1 (Masterpiece Golden Proportion) -->
+    <path d="M 376 195 C 388 170 412 170 414 272 C 408 280 380 280 376 195 Z" fill="url(#toothZirconia)"/>
+    <!-- Central Incisor 2 -->
+    <path d="M 418 195 C 430 170 454 170 452 272 C 448 280 420 280 418 195 Z" fill="url(#toothZirconia)"/>
+    <!-- Lateral Incisor 2 -->
+    <path d="M 458 200 C 470 176 490 178 488 264 C 484 274 460 272 458 200 Z" fill="url(#toothZirconia)"/>
+    <!-- Canine 2 -->
+    <path d="M 494 208 C 506 180 530 182 528 260 C 522 274 498 270 494 208 Z" fill="url(#toothZirconia)"/>
+    <!-- Premolar 1 Right -->
+    <path d="M 533 216 C 543 188 565 190 562 248 C 558 262 537 260 533 216 Z" fill="url(#toothZirconia)"/>
+    <!-- Premolar 2 Right -->
+    <path d="M 567 224 C 576 195 596 198 592 242 C 588 255 570 255 567 224 Z" fill="url(#toothZirconia)"/>
+  </g>
+
+  <!-- Incisal Edge Natural Translucency Glaze -->
+  <g fill="url(#incisalGlow)">
+    <rect x="378" y="260" width="34" height="10" rx="3"/>
+    <rect x="420" y="260" width="30" height="10" rx="3"/>
+    <rect x="338" y="254" width="32" height="8" rx="2"/>
+    <rect x="460" y="254" width="26" height="8" rx="2"/>
+  </g>
+
+  <!-- Lower Dentition (Balanced, Whitened Smile) -->
+  <path d="M 280 300 Q 400 328 520 300 Q 400 312 280 300 Z" fill="#e2e8f0" opacity="0.95"/>
+
+  <!-- Post-Op Status Badge -->
+  <rect x="24" y="24" width="144" height="34" rx="8" fill="rgba(15, 23, 42, 0.85)" stroke="#10b981" stroke-width="1.5"/>
+  <circle cx="42" cy="41" r="5" fill="#10b981"/>
+  <text x="56" y="46" fill="#6ee7b7" font-family="system-ui" font-size="13" font-weight="700" letter-spacing="1">POST-OP</text>
+
+  <text x="770" y="470" text-anchor="end" fill="#38bdf8" font-family="system-ui" font-size="12" font-weight="600">CASE #01 • 24-HOUR ALL-ON-6 ZIRCONIA RESTORATION</text>
+</svg>

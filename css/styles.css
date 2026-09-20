@@ -1,0 +1,350 @@
+/* ==========================================================================
+   CLINICAL PORTFOLIO - LIGHT MEDICAL AESTHETIC & MODERN GLASSMORPHISM
+   Inspired by Reference Design & Exact Color Palette:
+   #2B6CF5 (Royal Blue) | #CFA3F6 (Lavender) | #00000F (Deep Dark)
+   #B1BEFB (Periwinkle) | #D2E2FF (Soft Ice) | #4A4A50 (Muted Text)
+   #DCE9FF (Pastel Sky Background)
+   ========================================================================== */
+
+:root {
+  --primary-blue: #2B6CF5;
+  --primary-blue-hover: #1f57d6;
+  --accent-lavender: #CFA3F6;
+  --text-dark: #00000F;
+  --accent-periwinkle: #B1BEFB;
+  --ice-blue: #D2E2FF;
+  --text-muted: #4A4A50;
+  --bg-sky: #DCE9FF;
+  --bg-page: #F4F8FF;
+  --card-glass: rgba(255, 255, 255, 0.78);
+  --border-glass: rgba(177, 190, 251, 0.45);
+  --border-glass-hover: rgba(43, 108, 245, 0.5);
+  --shadow-subtle: 0 10px 30px -5px rgba(43, 108, 245, 0.08);
+}
+
+html {
+  scroll-behavior: smooth;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-sky);
+  color: var(--text-dark);
+}
+
+body {
+  background: linear-gradient(180deg, #DCE9FF 0%, #EAF2FF 20%, #F5F9FF 55%, #FFFFFF 100%);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 9px;
+}
+::-webkit-scrollbar-track {
+  background: #DCE9FF;
+}
+::-webkit-scrollbar-thumb {
+  background: #B1BEFB;
+  border-radius: 9999px;
+  border: 2px solid #DCE9FF;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2B6CF5;
+}
+
+/* --------------------------------------------------------------------------
+   Light Glassmorphism Panels
+   -------------------------------------------------------------------------- */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--border-glass);
+  box-shadow: 0 12px 35px -8px rgba(43, 108, 245, 0.07), 0 4px 12px 0 rgba(0, 0, 0, 0.02);
+}
+
+.glass-panel-elevated {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(177, 190, 251, 0.55);
+  box-shadow: 0 20px 45px -12px rgba(43, 108, 245, 0.12), 0 0 20px rgba(207, 163, 246, 0.15);
+}
+
+.glass-panel-interactive {
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--border-glass);
+}
+.glass-panel-interactive:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.95);
+  border-color: var(--primary-blue);
+  box-shadow: 0 20px 40px -10px rgba(43, 108, 245, 0.16), 0 0 20px rgba(43, 108, 245, 0.12);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(177, 190, 251, 0.5);
+}
+
+/* Primary Action Pill Button */
+.btn-primary-pill {
+  background-color: var(--primary-blue);
+  color: #ffffff;
+  border-radius: 9999px;
+  font-weight: 600;
+  box-shadow: 0 10px 24px -4px rgba(43, 108, 245, 0.38);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-primary-pill:hover {
+  background-color: var(--primary-blue-hover);
+  box-shadow: 0 14px 28px -4px rgba(43, 108, 245, 0.5);
+  transform: translateY(-2px);
+}
+
+/* --------------------------------------------------------------------------
+   Giant Watermark Background Typography
+   -------------------------------------------------------------------------- */
+.hero-watermark-name {
+  position: absolute;
+  top: 42%;
+  left: 48%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(7rem, 21vw, 24rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: rgba(255, 255, 255, 0.65);
+  pointer-events: none;
+  user-select: none;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+/* Smooth Portrait Fade Mask */
+.doctor-hero-mask {
+  -webkit-mask-image: linear-gradient(to bottom, black 72%, transparent 100%), linear-gradient(to right, black 85%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 72%, transparent 100%), linear-gradient(to right, black 85%, transparent 100%);
+  -webkit-mask-composite: destination-in;
+  mask-composite: intersect;
+}
+
+/* --------------------------------------------------------------------------
+   3D Crystal Glass Tooth Floating Animation
+   -------------------------------------------------------------------------- */
+.floating-crystal-tooth {
+  animation: crystalLevitate 6s ease-in-out infinite;
+  filter: drop-shadow(0 25px 35px rgba(43, 108, 245, 0.18)) drop-shadow(0 0 25px rgba(207, 163, 246, 0.25));
+  transition: transform 0.3s ease-out;
+}
+
+@keyframes crystalLevitate {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-16px) rotate(2deg);
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+}
+
+/* Glowing Sparkles Animation */
+.sparkle-pulse {
+  animation: sparkleTwinkle 3.2s infinite ease-in-out;
+}
+
+@keyframes sparkleTwinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Splash Screen
+   -------------------------------------------------------------------------- */
+#splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: radial-gradient(circle at center, #EAF2FF 0%, #DCE9FF 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.8s cubic-bezier(0.65, 0, 0.35, 1), transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+  overflow: hidden;
+}
+
+#splash-screen.splash-hidden {
+  opacity: 0;
+  transform: scale(1.03);
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* Concentric Pulse Rings for Splash */
+.ring-container {
+  position: relative;
+  width: 170px;
+  height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pulse-ring {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.pulse-ring-1 {
+  inset: -15px;
+  border: 2px solid rgba(43, 108, 245, 0.3);
+  animation: ringPulseLight 3.2s infinite ease-out;
+}
+
+.pulse-ring-2 {
+  inset: -32px;
+  border: 1.5px dashed rgba(207, 163, 246, 0.45);
+  animation: ringRotateLight 22s infinite linear;
+}
+
+.pulse-ring-3 {
+  inset: -48px;
+  border: 1px solid rgba(177, 190, 251, 0.4);
+  animation: ringPulseLight 3.8s infinite 1s ease-out;
+}
+
+@keyframes ringPulseLight {
+  0% {
+    transform: scale(0.94);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(0.94);
+    opacity: 0.4;
+  }
+}
+
+@keyframes ringRotateLight {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Splash Progress Bar */
+.splash-progress-track {
+  width: 260px;
+  height: 5px;
+  background: rgba(177, 190, 251, 0.35);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.splash-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #2B6CF5, #CFA3F6, #2B6CF5);
+  border-radius: 9999px;
+  box-shadow: 0 0 12px rgba(43, 108, 245, 0.6);
+  transition: width 0.08s linear;
+}
+
+/* --------------------------------------------------------------------------
+   Interactive Before & After Image Comparison Slider
+   -------------------------------------------------------------------------- */
+.comparison-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  border-radius: 1.25rem;
+}
+
+.comparison-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.comparison-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 50%;
+  overflow: hidden;
+  will-change: width;
+}
+
+.comparison-overlay .comparison-image {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+}
+
+.comparison-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #2B6CF5, #CFA3F6, #2B6CF5);
+  box-shadow: 0 0 14px rgba(43, 108, 245, 0.7);
+  cursor: ew-resize;
+  transform: translateX(-50%);
+  z-index: 20;
+}
+
+.comparison-handle-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2.5px solid #2B6CF5;
+  box-shadow: 0 4px 18px rgba(43, 108, 245, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2B6CF5;
+  cursor: ew-resize;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.comparison-handle-button:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 6px 24px rgba(43, 108, 245, 0.5);
+}
+
+/* --------------------------------------------------------------------------
+   Modal Backdrop
+   -------------------------------------------------------------------------- */
+.modal-backdrop {
+  background: rgba(0, 0, 15, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Active Nav Item */
+.nav-link.active-nav {
+  color: #2B6CF5;
+  font-weight: 700;
+}
